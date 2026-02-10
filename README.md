@@ -19,9 +19,13 @@ Will create the design in figma
 
 [Figma Design](https://www.figma.com/design/KcYfidtdEZsvIdawIERxHB/PassMaster?node-id=0-1&t=0XDnnXOITy6Iuhq2-1)
 
+## Taiga
+
+Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeline)
+
 ## Tech stack
 
-- **Frontend**: NextJS + Konva
+- **Frontend**: NextJS
 
 - **Backend**: Laravel
 
@@ -39,6 +43,7 @@ Will create the design in figma
 - [x] Create Taiga for tracking the progress
 - [x] Choose a tech stack
 - [x] Initiate the repo and search for component library to use
+- [ ] Setup dev environment with Docker + Docker-Compose
 - [ ] Create base landing page
 - [ ] Create a simple searcher of events
 - [ ] Create a simple seat map without Konva
