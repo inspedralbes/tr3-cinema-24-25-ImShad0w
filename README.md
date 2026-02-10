@@ -44,8 +44,8 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Choose a tech stack
 - [x] Initiate the repo and search for component library to use
 - [x] Setup dev environment with Docker + Docker-Compose
-- [ ] Create base landing page
-- [ ] Create a simple searcher of events
+- [x] Create base landing page
+- [ ] Create a simple page of events
 - [ ] Create a simple seat map without Konva
 
 ## Key concepts to learn for this project
