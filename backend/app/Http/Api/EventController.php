@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Http\Api;
+
+use App\Models\Event;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class EventController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return Event::all();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            "title" => 'required|string|max:255',
+            "description" => 'required|string',
+        ]);
+
+        $event = Event::create($validated);
+        return $event;
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Event $event)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Event $event)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Event $event)
+    {
+        //
+    }
+}
