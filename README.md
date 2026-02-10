@@ -17,6 +17,8 @@ Things the project has to have:
 
 Will create the design in figma
 
+[Figma Design](https://www.figma.com/design/KcYfidtdEZsvIdawIERxHB/PassMaster?node-id=0-1&t=0XDnnXOITy6Iuhq2-1)
+
 ## Tech stack
 
 - **Frontend**: NextJS + Konva
@@ -33,10 +35,13 @@ Will create the design in figma
 
 ## Todos
 
-- [ ] Start by designing the flux of user and admin panel
-- [ ] Create Taiga for tracking the progress
+- [x] Start by designing the flux of user and admin panel
+- [x] Create Taiga for tracking the progress
 - [x] Choose a tech stack
 - [x] Initiate the repo and search for component library to use
+- [ ] Create base landing page
+- [ ] Create a simple searcher of events
+- [ ] Create a simple seat map without Konva
 
 ## Key concepts to learn for this project
 
