@@ -3,8 +3,8 @@ import Header from "@/components/sections/Header"
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PassMaster the ticketing system of choice",
-  description: "PassMaster is a ticketing system app, created for the sole purpose of making things simple and easy",
+  title: "PassMaster",
+  description: "Find and book tickets for live events",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-[#18181b] antialiased">
         <Header />
         {children}
       </body>

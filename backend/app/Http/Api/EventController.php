@@ -24,6 +24,8 @@ class EventController extends Controller
         $validated = $request->validate([
             "title" => 'required|string|max:255',
             "description" => 'required|string',
+            "location" => 'required|string',
+            "date" => 'required|date',
         ]);
 
         $event = Event::create($validated);

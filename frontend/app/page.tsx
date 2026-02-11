@@ -3,20 +3,23 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center px-4">
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6">
-          Pass<span className="text-[#026CDF]">Master</span>
+    <main className="min-h-screen bg-[#18181b] flex flex-col items-center justify-center px-6">
+      <div className="text-center max-w-2xl">
+        {/* Main Title */}
+        <h1 className="text-5xl md:text-6xl font-bold text-[#fafafa] mb-4">
+          Pass<span className="text-[#f59e0b]">Master</span>
         </h1>
-        <p className="text-xl md:text-2xl text-gray-400 mb-10 max-w-xl">
-          Your ticket to the best live events
+        {/* Tagline */}
+        <p className="text-lg text-[#a1a1aa] mb-10">
+          Find and book tickets for the best live events
         </p>
-        <Link href="/events">
+        {/* CTA Button */}
+        <Link href="/event">
           <Button
             size="lg"
-            className="bg-[#026CDF] hover:bg-[#0258b8] text-white font-bold text-lg px-10 py-6 rounded-full"
+            className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold px-10 py-6 text-base"
           >
-            Find Events
+            Browse Events
           </Button>
         </Link>
       </div>
