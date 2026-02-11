@@ -10,4 +10,9 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'description', 'location', 'date'];
+
+    public function seat()
+    {
+        return $this->hasMany(Seat::class);
+    }
 }
