@@ -38,9 +38,14 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        //
+        $event->load('seats');
+        return new EventResource($event);
     }
 
+    public function seatsByEvent(Event $event)
+    {
+        return $event->seats()->get();
+    }
     /**
      * Update the specified resource in storage.
      */

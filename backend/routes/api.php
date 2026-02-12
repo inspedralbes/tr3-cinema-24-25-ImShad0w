@@ -10,3 +10,5 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/event', [EventController::class, 'store']);
 Route::get('/event', [EventController::class, 'index']);
+Route::get('/event/{event}', [EventController::class, 'show']);
+Route::get('/event/{event}/seats', [EventController::class, 'seatsByEvent']);

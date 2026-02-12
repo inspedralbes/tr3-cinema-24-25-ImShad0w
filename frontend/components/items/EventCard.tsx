@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { MapPin, Calendar, Ticket } from "lucide-react"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card"
@@ -49,12 +50,14 @@ export default function EventCard({ event }: { event: Event }) {
 
             {/* Buttons */}
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                className="text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#3f3f46]"
-              >
-                Details
-              </Button>
+              <Link href={`/event/${event.id}`}>
+                <Button
+                  variant="ghost"
+                  className="text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#3f3f46]"
+                >
+                  Details
+                </Button>
+              </Link>
               <Button
                 className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold"
               >

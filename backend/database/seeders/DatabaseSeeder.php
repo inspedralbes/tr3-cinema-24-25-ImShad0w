@@ -22,7 +22,13 @@ class DatabaseSeeder extends Seeder
         //    'email' => 'test@example.com',
         //]);
         Event::factory(5)->create()->each(function ($event) {
-            Seat::factory(30)->create(['event_id' => $event->id]);
+            for ($i = 1; $i <= 30; $i++) {
+                Seat::create([
+                    'event_id' => $event->id,
+                    'seat_number' => $i,
+                    'status' => 'available',
+                ]);
+            }
         });
     }
 }
