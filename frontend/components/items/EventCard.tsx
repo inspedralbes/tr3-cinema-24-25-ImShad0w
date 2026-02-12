@@ -8,6 +8,7 @@ type Event = {
   description: string;
   location: string;
   date: string;
+  seats_count: number;
 }
 
 export default function EventCard({ event }: { event: Event }) {
@@ -66,7 +67,7 @@ export default function EventCard({ event }: { event: Event }) {
         {/* Right Side - Tickets */}
         <div className="flex flex-col items-center justify-center px-10 border-l border-[#3f3f46]">
           <Ticket className="w-5 h-5 text-[#f59e0b] mb-2" />
-          <span className="text-[#fafafa] text-4xl font-bold">0</span>
+          <span className="text-[#fafafa] text-4xl font-bold">{event.seats_count}</span>
           <span className="text-[#71717a] text-xs mt-1 uppercase tracking-wider">left</span>
         </div>
       </div>

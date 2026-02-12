@@ -9,6 +9,7 @@ type Event = {
   description: string;
   location: string;
   date: string;
+  seats_count: number;
 }
 
 export default function Page() {
@@ -24,14 +25,14 @@ export default function Page() {
           throw new Error("Failed to fetch events")
         }
         const data = await response.json()
-        setEvents(data)
+        setEvents(Array.isArray(data) ? data : data.data || [])
+
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred")
       } finally {
         setLoading(false)
       }
     }
-
     fetchEvents()
   }, [])
 

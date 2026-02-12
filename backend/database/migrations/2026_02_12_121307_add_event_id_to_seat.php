@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('seats', function (Blueprint $table) {
-            $table->id();
-            $table->string('seat_number');
-            $table->enum('status', ['available', 'reserved', 'sold'])->default('available');
-            $table->timestamps();
+        Schema::table('seats', function (Blueprint $table) {
+            $table->foreignId('event_id')->constrained()->onDelete('cascade');
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('seats');
+        Schema::table('seat', function (Blueprint $table) {
+            //
+        });
     }
 };
