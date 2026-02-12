@@ -45,8 +45,10 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Initiate the repo and search for component library to use
 - [x] Setup dev environment with Docker + Docker-Compose
 - [x] Create base landing page
-- [ ] Create a simple page of events
-- [ ] Create a simple seat map without Konva
+- [x] Create a simple page of events
+- [ ] Create a simple seat map
+- [ ] Create a way for reserving and buying the seats
+- [ ] Add real time queue for up to 5 people
 
 ## Key concepts to learn for this project
 
