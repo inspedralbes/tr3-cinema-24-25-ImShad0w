@@ -58,11 +58,11 @@ export default function EventCard({ event }: { event: Event }) {
                   Details
                 </Button>
               </Link>
-              <Button
+              <Link href={`/event/${event.id}/reserve`}
                 className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold"
               >
                 Get Tickets
-              </Button>
+              </Link>
             </div>
           </CardContent>
         </div>

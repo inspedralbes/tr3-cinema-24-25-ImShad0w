@@ -6,6 +6,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\SeatResource;
 
 class EventController extends Controller
 {
@@ -44,7 +45,7 @@ class EventController extends Controller
 
     public function seatsByEvent(Event $event)
     {
-        return $event->seats()->get();
+        return SeatResource::collection($event->seats()->get());
     }
     /**
      * Update the specified resource in storage.
