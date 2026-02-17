@@ -35,7 +35,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 
 - **Development**: Docker + Docker-Compose
 
-- **Component Library**: Shadcn
+- **Component Library**: Shadcn + Lucide-react
 
 ## Todos
 
