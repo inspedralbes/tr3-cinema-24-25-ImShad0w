@@ -1,10 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react";
+//Only the reserve page should have the socket-io realtime capabilities
+import { io } from "socket.io-client";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import SeatMap from "@/components/sections/SeatMap";
-import { Ticket, ChevronLeft, Clock, MapPin } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import type { Socket } from "socket.io-client";
 
 type Seat = {
   id: number;
@@ -18,8 +21,10 @@ export default function ReservePage() {
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    socketRef.current = io("http://localhost:3001");
     async function fetchSeats() {
       try {
         const response = await fetch(`http://localhost:8000/api/event/${params.id}/seats`)
@@ -35,6 +40,9 @@ export default function ReservePage() {
       }
     }
     fetchSeats()
+    return () => {
+      socketRef.current?.disconnect()
+    }
   }, [params.id])
 
   const handleSeatSelect = (seat: Seat) => {
@@ -45,6 +53,12 @@ export default function ReservePage() {
       }
       return [...prev, seat];
     });
+    // Emit to socket
+    if (socketRef.current) {
+      socketRef.current.emit("message", {
+        data: seat.id,
+      });
+    }
   };
 
   if (loading) {
@@ -79,7 +93,7 @@ export default function ReservePage() {
   return (
     <div className="min-h-screen bg-[#18181b]">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Link 
+        <Link
           href={`/event/${params.id}`}
           className="inline-flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors mb-8"
         >
@@ -87,74 +101,22 @@ export default function ReservePage() {
           <span>Back to event</span>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 flex items-center justify-center">
-            <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-12 w-full">
-              <SeatMap 
-                seats={seats} 
-                selectedSeats={selectedSeats}
-                onSeatSelect={handleSeatSelect}
-              />
-            </div>
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-12">
+            <SeatMap
+              seats={seats}
+              selectedSeats={selectedSeats}
+              onSeatSelect={handleSeatSelect}
+            />
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-6 sticky top-8">
-              <div className="flex items-center gap-3 mb-6">
-                <Ticket className="w-5 h-5 text-[#f97316]" />
-                <h2 className="text-lg font-medium text-white">Booking Details</h2>
-              </div>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="w-16 h-20 bg-[#27272a] rounded-lg flex-shrink-0" />
-                  <div>
-                    <h3 className="text-white font-medium">Movie Title</h3>
-                    <p className="text-[#71717a] text-sm">VIP Screening</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 text-[#a1a1aa] text-sm">
-                  <MapPin className="w-4 h-4" />
-                  <span>Cinema Hall 1</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-[#a1a1aa] text-sm">
-                  <Clock className="w-4 h-4" />
-                  <span>Today, 7:30 PM</span>
-                </div>
-              </div>
-
-              <div className="border-t border-[#27272a] pt-4 mb-4">
-                <h3 className="text-white font-medium mb-3">Selected Seats</h3>
-                {selectedSeats.length === 0 ? (
-                  <p className="text-[#71717a] text-sm">Click on available seats to select them</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedSeats.map(seat => (
-                      <span 
-                        key={seat.id}
-                        className="bg-[#f97316]/20 text-[#f97316] px-3 py-1 rounded-full text-sm font-medium"
-                      >
-                        {seat.seat_number}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between py-3 border-t border-[#27272a]">
-                <span className="text-[#71717a]">Total</span>
-                <span className="text-white font-semibold text-lg">${selectedSeats.length * 12}.00</span>
-              </div>
-
-              <button 
-                disabled={selectedSeats.length === 0}
-                className="w-full bg-[#f97316] hover:bg-orange-600 disabled:bg-[#3f3f46] disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-colors"
-              >
-                Proceed to Checkout
-              </button>
-            </div>
+          <div className="mt-8 flex justify-center">
+            <button
+              disabled={selectedSeats.length === 0}
+              className="bg-[#f97316] hover:bg-orange-600 disabled:bg-[#3f3f46] disabled:cursor-not-allowed text-white font-medium py-3 px-8 rounded-xl transition-colors"
+            >
+              Proceed to Checkout ({selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''} selected)
+            </button>
           </div>
         </div>
       </div>

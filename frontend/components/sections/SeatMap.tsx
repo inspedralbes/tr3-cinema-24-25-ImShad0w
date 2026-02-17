@@ -6,14 +6,18 @@ type Seat = {
   status: "available" | "reserved" | "sold";
 }
 
+//Props
 type SeatArray = {
   seats: Seat[];
   selectedSeats?: Seat[];
+  //Emit
   onSeatSelect?: (seat: Seat) => void;
 }
 
 export default function SeatMap({ seats, selectedSeats = [], onSeatSelect }: SeatArray) {
   const rows = [];
+
+  //Divide the 30 chairs into 3 rows of 10
   for (let i = 0; i < seats.length; i += 10) {
     rows.push(seats.slice(i, i + 10));
   }
@@ -29,10 +33,12 @@ export default function SeatMap({ seats, selectedSeats = [], onSeatSelect }: Sea
         {rows.map((row, rowIndex) => (
           <div key={rowIndex} className="flex gap-2 justify-center">
             {row.map(seat => (
-              <SeatItem 
-                key={seat.id} 
-                seat={seat} 
+              <SeatItem
+                key={seat.id}
+                seat={seat}
+                //Pass down to the child if its selected
                 isSelected={selectedSeats.some(s => s.id === seat.id)}
+                //Emit for selecting the seat
                 onSelect={onSeatSelect}
               />
             ))}

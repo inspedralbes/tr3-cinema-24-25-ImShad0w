@@ -1,12 +1,26 @@
-const express = require('express')
-const app = express()
-const port = 3001
+const express = require("express");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 
-app.get('/', (req: any, res: any) => {
-  res.send('Hello World!')
+const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket: any) => {
+  console.log("User connected via socket: ", socket.id);
+
+  socket.on("message", (data: any) => {
+    console.log(data);
+  })
+});
+
+app.get("/", (req: Request, res: any) => {
+  res.send("Hello world");
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-
+httpServer.listen(3001);
