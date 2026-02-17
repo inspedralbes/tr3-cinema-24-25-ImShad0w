@@ -25,7 +25,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 
 ## Tech stack
 
-- **Frontend**: NextJS
+- **Frontend**: NextJS (No specific reason, was bored of Vue and Nuxt)
 
 - **Backend**: Laravel
 
@@ -46,7 +46,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Setup dev environment with Docker + Docker-Compose
 - [x] Create base landing page
 - [x] Create a simple page of events
-- [ ] Create a simple seat map
+- [x] Create a simple seat map
 - [ ] Create a way for reserving and buying the seats
 - [ ] Add real time queue for up to 5 people
 

@@ -1,11 +1,10 @@
 "use client"
 
-//Only the reserve page should have the socket-io realtime capabilities
 import { io } from "socket.io-client";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import SeatMap from "@/components/sections/SeatMap";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import Link from "next/link";
 import type { Socket } from "socket.io-client";
 
@@ -46,18 +45,33 @@ export default function ReservePage() {
   }, [params.id])
 
   const handleSeatSelect = (seat: Seat) => {
-    setSelectedSeats(prev => {
-      const isSelected = prev.some(s => s.id === seat.id);
-      if (isSelected) {
-        return prev.filter(s => s.id !== seat.id);
+    const isSelected = selectedSeats.some(s => s.id === seat.id);
+    
+    if (isSelected) {
+      setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
+      if (socketRef.current) {
+        socketRef.current.emit("removeSeat", {
+          socket: socketRef.current.id,
+          seatId: seat.id,
+        });
       }
-      return [...prev, seat];
-    });
-    // Emit to socket
+    } else {
+      setSelectedSeats(prev => [...prev, seat]);
+      if (socketRef.current) {
+        socketRef.current.emit("selectSeat", {
+          socket: socketRef.current.id,
+          data: seat.id,
+        });
+      }
+    }
+  };
+
+  const removeSeat = (seatId: number) => {
+    setSelectedSeats(prev => prev.filter(s => s.id !== seatId));
     if (socketRef.current) {
-      socketRef.current.emit("selectSeat", {
+      socketRef.current.emit("removeSeat", {
         socket: socketRef.current.id,
-        data: seat.id,
+        data: seatId,
       });
     }
   };
@@ -102,22 +116,50 @@ export default function ReservePage() {
           <span>Back to event</span>
         </Link>
 
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-12">
-            <SeatMap
-              seats={seats}
-              selectedSeats={selectedSeats}
-              onSeatSelect={handleSeatSelect}
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-12">
+              <SeatMap
+                seats={seats}
+                selectedSeats={selectedSeats}
+                onSeatSelect={handleSeatSelect}
+              />
+            </div>
           </div>
 
-          <div className="mt-8 flex justify-center">
-            <button
-              disabled={selectedSeats.length === 0}
-              className="bg-[#f97316] hover:bg-orange-600 disabled:bg-[#3f3f46] disabled:cursor-not-allowed text-white font-medium py-3 px-8 rounded-xl transition-colors"
-            >
-              Proceed to Checkout ({selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''} selected)
-            </button>
+          <div className="lg:col-span-1">
+            <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-6">
+              <h2 className="text-white font-medium mb-4">Selected Seats</h2>
+
+              {selectedSeats.length === 0 ? (
+                <p className="text-[#71717a]">Click seats to select them</p>
+              ) : (
+                <div className="space-y-2 mb-6">
+                  {selectedSeats.map(seat => (
+                    <div key={seat.id} className="flex items-center justify-between bg-[#27272a] rounded-lg px-4 py-3">
+                      <span className="text-white">Seat {seat.seat_number}</span>
+                      <button
+                        onClick={() => removeSeat(seat.id)}
+                        className="text-[#71717a] hover:text-[#ef4444] transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedSeats.length > 0 && (
+                <div className="space-y-3">
+                  <button className="w-full bg-[#f97316] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-xl transition-colors">
+                    Reserve
+                  </button>
+                  <button className="w-full bg-[#27272a] hover:bg-[#3f3f46] text-white font-medium py-3 px-6 rounded-xl transition-colors">
+                    Buy
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
