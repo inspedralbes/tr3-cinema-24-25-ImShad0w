@@ -55,7 +55,8 @@ export default function ReservePage() {
     });
     // Emit to socket
     if (socketRef.current) {
-      socketRef.current.emit("message", {
+      socketRef.current.emit("selectSeat", {
+        socket: socketRef.current.id,
         data: seat.id,
       });
     }
