@@ -81,7 +81,7 @@ export default function ReservePage() {
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-[#f97316] border-t-transparent rounded-full animate-spin" />
-          <div className="text-[#71717a]">Loading seat map...</div>
+          <div className="text-[#71717a]">Carregant mapa de seients...</div>
         </div>
       </div>
     )
@@ -100,7 +100,7 @@ export default function ReservePage() {
   if (!seats.length) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
-        <div className="text-[#71717a]">No seats available for this event</div>
+        <div className="text-[#71717a]">No hi ha seients disponibles per a aquest esdeveniment</div>
       </div>
     )
   }
@@ -113,7 +113,7 @@ export default function ReservePage() {
           className="inline-flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors mb-8"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back to event</span>
+          <span>Tornar a l'esdeveniment</span>
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -129,15 +129,15 @@ export default function ReservePage() {
 
           <div className="lg:col-span-1">
             <div className="bg-[#1c1c21] rounded-2xl border border-[#27272a] p-6">
-              <h2 className="text-white font-medium mb-4">Selected Seats</h2>
+              <h2 className="text-white font-medium mb-4">Seients Seleccionats</h2>
 
               {selectedSeats.length === 0 ? (
-                <p className="text-[#71717a]">Click seats to select them</p>
+                <p className="text-[#71717a]">Fes clic als seients per seleccionar-los</p>
               ) : (
                 <div className="space-y-2 mb-6">
                   {selectedSeats.map(seat => (
                     <div key={seat.id} className="flex items-center justify-between bg-[#27272a] rounded-lg px-4 py-3">
-                      <span className="text-white">Seat {seat.seat_number}</span>
+                      <span className="text-white">Seient {seat.seat_number}</span>
                       <button
                         onClick={() => removeSeat(seat.id)}
                         className="text-[#71717a] hover:text-[#ef4444] transition-colors"
@@ -152,10 +152,10 @@ export default function ReservePage() {
               {selectedSeats.length > 0 && (
                 <div className="space-y-3">
                   <button className="w-full bg-[#f97316] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-xl transition-colors">
-                    Reserve
+                    Reservar
                   </button>
                   <button className="w-full bg-[#27272a] hover:bg-[#3f3f46] text-white font-medium py-3 px-6 rounded-xl transition-colors">
-                    Buy
+                    Comprar
                   </button>
                 </div>
               )}

@@ -43,7 +43,7 @@ export default function EventDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
-        <div className="text-[#a1a1aa]">Loading event...</div>
+        <div className="text-[#a1a1aa]">Carregant esdeveniment...</div>
       </div>
     )
   }
@@ -59,7 +59,7 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
-        <div className="text-[#71717a]">Event not found</div>
+        <div className="text-[#71717a]">Esdeveniment no trobat</div>
       </div>
     )
   }
@@ -82,7 +82,7 @@ export default function EventDetailPage() {
             className="mb-8 text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Events
+            Tornar a Esdeveniments
           </Button>
         </Link>
 
@@ -117,15 +117,15 @@ export default function EventDetailPage() {
               <Ticket className="w-5 h-5 text-[#f59e0b]" />
               <div>
                 <span className="text-[#fafafa] font-semibold">{event.seats_count}</span>
-                <span className="text-[#a1a1aa] ml-2">tickets available</span>
+                <span className="text-[#a1a1aa] ml-2">entrades disponibles</span>
               </div>
             </div>
 
             {/* Action Button */}
             <Link href={`/event/${event.id}/reserve`}
-              className="w-full bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold py-6"
+              className="w-full bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold p-3 rounded-lg"
             >
-              Get Tickets
+              Obtenir Entrades
             </Link>
           </CardContent>
         </Card>

@@ -55,13 +55,13 @@ export default function EventCard({ event }: { event: Event }) {
                   variant="ghost"
                   className="text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#3f3f46]"
                 >
-                  Details
+                  Detalls
                 </Button>
               </Link>
               <Link href={`/event/${event.id}/reserve`}
-                className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold"
+                className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold rounded-lg p-1"
               >
-                Get Tickets
+                Obtenir Entrades
               </Link>
             </div>
           </CardContent>
@@ -71,7 +71,7 @@ export default function EventCard({ event }: { event: Event }) {
         <div className="flex flex-col items-center justify-center px-10 border-l border-[#3f3f46]">
           <Ticket className="w-5 h-5 text-[#f59e0b] mb-2" />
           <span className="text-[#fafafa] text-4xl font-bold">{event.seats_count}</span>
-          <span className="text-[#71717a] text-xs mt-1 uppercase tracking-wider">left</span>
+          <span className="text-[#71717a] text-xs mt-1 uppercase tracking-wider">restants</span>
         </div>
       </div>
     </Card>

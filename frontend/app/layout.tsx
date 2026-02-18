@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "PassMaster",
-  description: "Find and book tickets for live events",
+  description: "Troba i reserva entrades per a esdeveniments en directe",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ca">
       <body className="bg-[#18181b] antialiased">
         <Header />
         {children}

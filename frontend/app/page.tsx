@@ -11,15 +11,14 @@ export default function Home() {
         </h1>
         {/* Tagline */}
         <p className="text-lg text-[#a1a1aa] mb-10">
-          Find and book tickets for the best live events
+          Troba i reserva entrades per als millors esdeveniments en directe
         </p>
-        {/* CTA Button */}
         <Link href="/event">
           <Button
             size="lg"
             className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold px-10 py-6 text-base"
           >
-            Browse Events
+            Veure Esdeveniments
           </Button>
         </Link>
       </div>

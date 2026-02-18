@@ -26,7 +26,7 @@ export default function SeatMap({ seats, selectedSeats = [], onSeatSelect }: Sea
     <div className="w-full flex flex-col items-center">
       <div className="flex flex-col items-center mb-12">
         <div className="w-72 h-1.5 bg-gradient-to-r from-transparent via-[#e4e4e7] to-transparent rounded-full shadow-[0_-2px_12px_rgba(255,255,255,0.15)]" />
-        <span className="text-[#71717a] text-xs mt-3 uppercase tracking-[0.3em] font-medium">Screen</span>
+        <span className="text-[#71717a] text-xs mt-3 uppercase tracking-[0.3em] font-medium">Pantalla</span>
       </div>
 
       <div className="flex flex-col gap-3">

@@ -14,7 +14,7 @@ export default function Header() {
             href="/event" 
             className="text-[#a1a1aa] hover:text-[#fafafa] transition-colors text-sm"
           >
-            Events
+            Esdeveniments
           </Link>
         </nav>
       </div>
