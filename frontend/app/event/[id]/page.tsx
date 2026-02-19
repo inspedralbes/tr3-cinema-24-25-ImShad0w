@@ -1,44 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { MapPin, Calendar, Ticket, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-
-type Event = {
-  id: number;
-  title: string;
-  description: string;
-  location: string;
-  date: string;
-  seats_count: number;
-}
+import { useEvent } from "../../../hooks/useEvents"
 
 export default function EventDetailPage() {
   const params = useParams()
-  const [event, setEvent] = useState<Event | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function fetchEvent() {
-      try {
-        const response = await fetch(`http://localhost:8000/api/event/${params.id}`)
-        if (!response.ok) {
-          throw new Error("Failed to fetch event")
-        }
-        const data = await response.json()
-        setEvent(data.data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred")
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchEvent()
-  }, [params.id])
+  const eventId = params.id as string
+  const { event, loading, error } = useEvent(eventId)
 
   if (loading) {
     return (
@@ -64,7 +36,7 @@ export default function EventDetailPage() {
     )
   }
 
-  const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
+  const formattedDate = new Date(event.date).toLocaleDateString('ca-ES', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -75,7 +47,6 @@ export default function EventDetailPage() {
   return (
     <div className="min-h-screen bg-[#18181b]">
       <div className="max-w-3xl mx-auto px-6 py-12">
-        {/* Back Button */}
         <Link href="/event">
           <Button
             variant="ghost"
@@ -86,7 +57,6 @@ export default function EventDetailPage() {
           </Button>
         </Link>
 
-        {/* Event Card */}
         <Card className="bg-[#27272a] border-[#3f3f46]">
           <CardHeader className="pb-6">
             <CardTitle className="text-[#fafafa] text-3xl font-bold">
@@ -95,12 +65,10 @@ export default function EventDetailPage() {
           </CardHeader>
 
           <CardContent className="space-y-8">
-            {/* Description */}
             <CardDescription className="text-[#a1a1aa] text-base leading-relaxed">
               {event.description}
             </CardDescription>
 
-            {/* Event Details */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-[#a1a1aa]">
                 <Calendar className="w-5 h-5 text-[#f59e0b]" />
@@ -112,7 +80,6 @@ export default function EventDetailPage() {
               </div>
             </div>
 
-            {/* Tickets Available */}
             <div className="flex items-center gap-3 p-4 bg-[#18181b] rounded-lg border border-[#3f3f46]">
               <Ticket className="w-5 h-5 text-[#f59e0b]" />
               <div>
@@ -121,7 +88,6 @@ export default function EventDetailPage() {
               </div>
             </div>
 
-            {/* Action Button */}
             <Link href={`/event/${event.id}/reserve`}
               className="w-full bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold p-3 rounded-lg"
             >

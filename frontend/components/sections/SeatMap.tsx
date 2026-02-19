@@ -15,11 +15,12 @@ type SeatArray = {
 }
 
 export default function SeatMap({ seats, selectedSeats = [], onSeatSelect }: SeatArray) {
+  const sortedSeats = [...seats].sort((a, b) => a.seat_number - b.seat_number);
   const rows = [];
 
   //Divide the 30 chairs into 3 rows of 10
-  for (let i = 0; i < seats.length; i += 10) {
-    rows.push(seats.slice(i, i + 10));
+  for (let i = 0; i < sortedSeats.length; i += 10) {
+    rows.push(sortedSeats.slice(i, i + 10));
   }
 
   return (

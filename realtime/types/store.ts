@@ -9,6 +9,8 @@ export interface User {
   socketId: string;
   eventId: string | null;
   selectedSeats: number[];
+  reservedSeats: number[];
+  reservationTime: number | null;
 }
 
 export interface Queue {
