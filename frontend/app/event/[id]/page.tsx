@@ -1,16 +1,58 @@
 "use client"
 
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import { MapPin, Calendar, Ticket, ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { useEvent } from "../../../hooks/useEvents"
+import { useState, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { MapPin, Calendar, Ticket, ArrowLeft, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useEvent } from "../../../hooks/useEvents";
+import { useSocket } from "../../../hooks/useSocket";
 
 export default function EventDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const eventId = params.id as string
   const { event, loading, error } = useEvent(eventId)
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEnterEventSuccess = useCallback(() => {
+    setIsLoading(false);
+    router.push(`/event/${eventId}/reserve`);
+  }, [router, eventId]);
+
+  const handleEnterQueue = useCallback(() => {
+    setIsLoading(false);
+    router.push(`/event/${eventId}/waiting`);
+  }, [router, eventId]);
+
+  const handleEnterEventError = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const { enterEvent, isConnected } = useSocket({
+    onEnterEventSuccess: handleEnterEventSuccess,
+    onEnterQueue: handleEnterQueue,
+    onEnterEventError: handleEnterEventError,
+  });
+
+  const handleGetTickets = () => {
+    console.log("Get tickets clicked, isConnected:", isConnected);
+    if (isConnected) {
+      setIsLoading(true);
+      console.log("Calling enterEvent with eventId:", eventId);
+      enterEvent(eventId);
+
+      // Reset loading after 10 seconds in case of no response
+      setTimeout(() => {
+        console.log("Timeout reached, resetting loading");
+        setIsLoading(false);
+      }, 10000);
+    } else {
+      console.log("Not connected, going to reserve directly");
+      router.push(`/event/${eventId}/reserve`);
+    }
+  };
 
   if (loading) {
     return (
@@ -88,11 +130,20 @@ export default function EventDetailPage() {
               </div>
             </div>
 
-            <Link href={`/event/${event.id}/reserve`}
-              className="w-full bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold p-3 rounded-lg"
+            <button
+              onClick={handleGetTickets}
+              disabled={isLoading}
+              className="w-full bg-[#f59e0b] hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed text-[#18181b] font-semibold p-3 rounded-lg flex items-center justify-center gap-2"
             >
-              Obtenir Entrades
-            </Link>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Processant...</span>
+                </>
+              ) : (
+                <span>Obtenir Entrades</span>
+              )}
+            </button>
           </CardContent>
         </Card>
       </div>

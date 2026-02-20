@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import SeatMap from "@/components/sections/SeatMap";
 import { ChevronLeft, X, Timer } from "lucide-react";
@@ -70,18 +70,36 @@ export default function ReservePage() {
     setTimeLeft(null);
   }, []);
 
-  const { selectSeat, removeSeat, reserveSeats, buySeats, isConnected } = useSocket({
+  const { selectSeat, removeSeat, reserveSeats, buySeats, isConnected, enterEvent, leaveEvent } = useSocket({
     onSeatsUpdated: handleSeatsUpdated,
     onReserveSuccess: handleReserveSuccess,
     onReserveError: handleReserveError,
     onBuySuccess: handleBuySuccess,
     onBuyError: handleBuyError,
     onReservationExpired: handleReservationExpired,
+    onEnterEventSuccess: () => {
+      fetchSeats();
+    },
+    onEnterQueue: () => {},
   });
 
+  const hasCalledEnterEvent = useRef(false);
+
   useEffect(() => {
-    fetchSeats();
-  }, [fetchSeats]);
+    if (isConnected && !hasCalledEnterEvent.current) {
+      hasCalledEnterEvent.current = true;
+      enterEvent(eventId);
+    }
+  }, [isConnected, eventId, enterEvent]);
+
+  // Cleanup: leave event when leaving the page
+  useEffect(() => {
+    return () => {
+      if (hasCalledEnterEvent.current) {
+        leaveEvent();
+      }
+    };
+  }, [leaveEvent]);
 
   useEffect(() => {
     if (timeLeft === null || timeLeft <= 0) return;
@@ -137,12 +155,12 @@ export default function ReservePage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (loading) {
+  if (loading || !isConnected) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-[#f97316] border-t-transparent rounded-full animate-spin" />
-          <div className="text-[#71717a]">Carregant mapa de seients...</div>
+          <div className="text-[#71717a]">{isConnected ? "Carregant mapa de seients..." : "Connectant..."}</div>
         </div>
       </div>
     )

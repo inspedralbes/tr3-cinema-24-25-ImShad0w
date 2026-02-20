@@ -58,8 +58,8 @@ export default function EventCard({ event }: { event: Event }) {
                   Detalls
                 </Button>
               </Link>
-              <Link href={`/event/${event.id}/reserve`}
-                className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold rounded-lg p-1"
+              <Link href={`/event/${event.id}`}
+                className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold rounded-lg px-4 py-2"
               >
                 Obtenir Entrades
               </Link>

@@ -42,10 +42,61 @@ async function releaseSeats(io: Server, socket: Socket, user: any) {
   }
 }
 
+function promoteNextFromQueue(io: Server, eventId: string) {
+  const queue = queues.find(q => q.eventId === eventId);
+  const event = events.find(e => e.eventId === eventId);
+
+  if (!queue || !event || queue.waitingUsers.length === 0) return;
+
+  if (event.activeUsers.length >= event.maxCapacity) return;
+
+  const nextSocketId = queue.waitingUsers.shift();
+  if (!nextSocketId) return;
+
+  const nextUser = users.find(u => u.socketId === nextSocketId);
+  if (!nextUser) return;
+
+  nextUser.eventId = eventId;
+  event.activeUsers.push(nextUser.socketId);
+
+  io.to(nextSocketId).emit("queuePromoted", {
+    eventId,
+    message: "It's your turn! You can now access the event."
+  });
+
+  console.log(`User ${nextSocketId} promoted from queue to event ${eventId}`);
+}
+
+async function syncEvents() {
+  try {
+    const response = await fetch("http://cinema_backend:8000/api/event");
+    if (response.ok) {
+      const apiEventsData: any = await response.json();
+
+      // Handle both array and object responses
+      const eventsArray = Array.isArray(apiEventsData) ? apiEventsData : (apiEventsData.data || []);
+
+      eventsArray.forEach((event: any) => {
+        const eventId = String(event.id);
+        if (!events.find(e => e.eventId === eventId)) {
+          events.push({
+            eventId,
+            activeUsers: [],
+            maxCapacity: 5
+          });
+          console.log(`Synced event: ${eventId}`);
+        }
+      });
+      console.log(`Synced ${eventsArray.length} events from API`);
+    }
+  } catch (error) {
+    console.error("Failed to sync events:", error);
+  }
+}
+
 export function setupSocketHandlers(io: Server, socket: Socket): void {
   console.log("User connected: ", socket.id);
 
-  // Create user on connect
   users.push({
     socketId: socket.id,
     eventId: null,
@@ -55,6 +106,120 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
   });
 
   console.log("Total users:", users.length);
+
+  console.log(`Socket ${socket.id} registered enterEvent listener`);
+
+  socket.on("enterEvent", async (data: any) => {
+    console.log("enterEvent received from", socket.id, "with data:", data);
+    const eventId = String(data.eventId);
+    const user = users.find(u => u.socketId === socket.id);
+
+    if (!user) {
+      socket.emit("enterEventError", { message: "User not found" });
+      return;
+    }
+
+    try {
+      console.log("Fetching event from API...");
+      const response = await fetch(`http://cinema_backend:8000/api/event/${eventId}`);
+      console.log("API response status:", response.status);
+
+      if (!response.ok) {
+        console.log("Event not found in API");
+        socket.emit("enterEventError", { message: "Event not found" });
+        return;
+      }
+
+      console.log("Syncing events...");
+      await syncEvents();
+
+      let event = events.find(e => e.eventId === eventId);
+
+      if (!event) {
+        event = {
+          eventId,
+          activeUsers: [],
+          maxCapacity: 5
+        };
+        events.push(event);
+        console.log(`Created new event ${eventId}`);
+      }
+
+      // Clean up activeUsers to ensure they're all strings
+      event.activeUsers = event.activeUsers.filter((u: any) => typeof u === "string");
+
+      console.log(`Enter event ${eventId}, active users: ${event.activeUsers.length}, maxCapacity: ${event.maxCapacity}`);
+
+      if (event.activeUsers.length >= event.maxCapacity) {
+        let queue = queues.find(q => q.eventId === eventId);
+        if (!queue) {
+          queue = {
+            eventId,
+            waitingUsers: []
+          };
+          queues.push(queue);
+        }
+
+        if (!queue.waitingUsers.includes(socket.id)) {
+          queue.waitingUsers.push(socket.id);
+        }
+
+        user.eventId = eventId;
+
+        socket.emit("enterQueue", {
+          eventId,
+          position: queue.waitingUsers.indexOf(socket.id) + 1,
+          message: "Event is full, you have been added to the queue"
+        });
+
+        console.log(`User ${socket.id} added to queue for event ${eventId}. Queue length: ${queue.waitingUsers.length}`);
+        return;
+      }
+
+      user.eventId = eventId;
+      event.activeUsers.push(socket.id);
+      console.log(`User ${socket.id} joined event ${eventId}. Active users: ${event.activeUsers.length}`);
+
+      socket.emit("enterEventSuccess", {
+        eventId,
+        message: "Successfully joined event"
+      });
+
+      console.log(`User ${socket.id} joined event ${eventId}`);
+    } catch (error) {
+      socket.emit("enterEventError", { message: "Failed to join event" });
+    }
+  });
+
+  socket.on("syncEvents", async () => {
+    await syncEvents();
+    socket.emit("syncEventsSuccess", {
+      message: "Events synced",
+      count: events.length
+    });
+  });
+
+  socket.on("leaveEvent", () => {
+    const user = users.find(u => u.socketId === socket.id);
+    
+    if (user && user.eventId) {
+      const event = events.find(e => e.eventId === user.eventId);
+      if (event) {
+        event.activeUsers = event.activeUsers.filter((id: any) => id !== socket.id);
+        console.log(`User ${socket.id} left event ${user.eventId}. Active users: ${event.activeUsers.length}`);
+        
+        // Promote next user from queue
+        promoteNextFromQueue(io, user.eventId);
+      }
+      
+      user.eventId = null;
+      user.selectedSeats = [];
+      
+      socket.emit("leaveEventSuccess", {
+        message: "Successfully left event"
+      });
+    }
+  });
 
   socket.on("selectSeat", (data: any) => {
     const user = users.find(u => u.socketId === data.socket);
@@ -108,7 +273,6 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
         user.reservedSeats = seatIds;
         user.reservationTime = Date.now();
 
-        // Set timer to release seats after 5 minutes
         const timer = setTimeout(() => {
           const currentUser = users.find(u => u.socketId === socket.id);
           if (currentUser) {
@@ -164,7 +328,6 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
       });
 
       if (response.ok) {
-        // Clear the timer
         const timer = userTimers.get(socket.id);
         if (timer) {
           clearTimeout(timer);
@@ -191,15 +354,29 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
   socket.on("disconnect", async () => {
     console.log("User disconnected: ", socket.id);
 
-    // Clear timer on disconnect
+    const user = users.find(u => u.socketId === socket.id);
+
+    if (user && user.eventId) {
+      const event = events.find(e => e.eventId === user.eventId);
+      if (event) {
+        event.activeUsers = event.activeUsers.filter(id => id !== socket.id);
+        console.log(`User ${socket.id} removed from event ${user.eventId}. Active users: ${event.activeUsers.length}`);
+
+        promoteNextFromQueue(io, user.eventId);
+      }
+    }
+
+    const queue = queues.find(q => q.waitingUsers.includes(socket.id));
+    if (queue) {
+      queue.waitingUsers = queue.waitingUsers.filter(id => id !== socket.id);
+    }
+
     const timer = userTimers.get(socket.id);
     if (timer) {
       clearTimeout(timer);
       userTimers.delete(socket.id);
     }
 
-    // Release reserved seats on disconnect (wait for Laravel)
-    const user = users.find(u => u.socketId === socket.id);
     if (user && user.reservedSeats.length > 0) {
       await releaseSeats(io, socket, user);
     }
