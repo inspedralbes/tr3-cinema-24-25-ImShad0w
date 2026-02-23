@@ -1,4 +1,4 @@
-import { events, users, queues } from "../types/store";
+import { events, users, queues, getEventRoom, getQueueRoom } from "../types/store";
 import type { Server, Socket } from "socket.io"
 
 const RESERVATION_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -57,12 +57,35 @@ function promoteNextFromQueue(io: Server, eventId: string) {
   if (!nextUser) return;
 
   nextUser.eventId = eventId;
-  event.activeUsers.push(nextUser.socketId);
+  event.activeUsers.push(nextSocketId);
 
   io.to(nextSocketId).emit("queuePromoted", {
     eventId,
     message: "It's your turn! You can now access the event."
   });
+
+  // Join the promoted user to the event room
+  const promotedSocket = io.sockets.sockets.get(nextSocketId);
+  if (promotedSocket) {
+    promotedSocket.join(getEventRoom(eventId));
+  }
+
+  // Broadcast updated queue positions to remaining queue members
+  queue.waitingUsers.forEach((socketId, index) => {
+    io.to(socketId).emit("queuePositionUpdate", {
+      eventId,
+      position: index + 1,
+      message: `Your position in queue is now ${index + 1}`
+    });
+  });
+  
+  // Clean up empty queues
+  if (queue.waitingUsers.length === 0) {
+    const queueIndex = queues.findIndex(q => q.eventId === eventId);
+    if (queueIndex !== -1) {
+      queues.splice(queueIndex, 1);
+    }
+  }
 
   console.log(`User ${nextSocketId} promoted from queue to event ${eventId}`);
 }
@@ -166,10 +189,22 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
 
         user.eventId = eventId;
 
+        // Join the queue room for this event
+        socket.join(getQueueRoom(eventId));
+
         socket.emit("enterQueue", {
           eventId,
           position: queue.waitingUsers.indexOf(socket.id) + 1,
           message: "Event is full, you have been added to the queue"
+        });
+
+        // Broadcast to queue room about updated positions
+        queue.waitingUsers.forEach((socketId, index) => {
+          io.to(socketId).emit("queuePositionUpdate", {
+            eventId,
+            position: index + 1,
+            message: `Your position in queue is now ${index + 1}`
+          });
         });
 
         console.log(`User ${socket.id} added to queue for event ${eventId}. Queue length: ${queue.waitingUsers.length}`);
@@ -178,11 +213,23 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
 
       user.eventId = eventId;
       event.activeUsers.push(socket.id);
+      
+      // Join the event room
+      socket.join(getEventRoom(eventId));
+      
+      // Notify all users in the event about the new user
+      io.to(getEventRoom(eventId)).emit("userJoinedEvent", {
+        eventId,
+        socketId: socket.id,
+        activeUsers: event.activeUsers
+      });
+      
       console.log(`User ${socket.id} joined event ${eventId}. Active users: ${event.activeUsers.length}`);
 
       socket.emit("enterEventSuccess", {
         eventId,
-        message: "Successfully joined event"
+        message: "Successfully joined event",
+        activeUsers: event.activeUsers
       });
 
       console.log(`User ${socket.id} joined event ${eventId}`);
@@ -204,12 +251,25 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
     
     if (user && user.eventId) {
       const event = events.find(e => e.eventId === user.eventId);
+      const eventId = user.eventId;
+      
       if (event) {
         event.activeUsers = event.activeUsers.filter((id: any) => id !== socket.id);
-        console.log(`User ${socket.id} left event ${user.eventId}. Active users: ${event.activeUsers.length}`);
+        
+        // Leave the event room
+        socket.leave(getEventRoom(eventId));
+        
+        // Notify remaining users in the event
+        io.to(getEventRoom(eventId)).emit("userLeftEvent", {
+          eventId,
+          socketId: socket.id,
+          activeUsers: event.activeUsers
+        });
+        
+        console.log(`User ${socket.id} left event ${eventId}. Active users: ${event.activeUsers.length}`);
         
         // Promote next user from queue
-        promoteNextFromQueue(io, user.eventId);
+        promoteNextFromQueue(io, eventId);
       }
       
       user.eventId = null;
@@ -355,20 +415,53 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
     console.log("User disconnected: ", socket.id);
 
     const user = users.find(u => u.socketId === socket.id);
+    const previousEventId = user?.eventId;
 
     if (user && user.eventId) {
       const event = events.find(e => e.eventId === user.eventId);
       if (event) {
         event.activeUsers = event.activeUsers.filter(id => id !== socket.id);
+        
+        // Leave the event room
+        socket.leave(getEventRoom(user.eventId));
+        
+        // Notify remaining users in the event
+        io.to(getEventRoom(user.eventId)).emit("userLeftEvent", {
+          eventId: user.eventId,
+          socketId: socket.id,
+          activeUsers: event.activeUsers
+        });
+        
         console.log(`User ${socket.id} removed from event ${user.eventId}. Active users: ${event.activeUsers.length}`);
 
         promoteNextFromQueue(io, user.eventId);
       }
     }
 
+    // Handle queue removal
     const queue = queues.find(q => q.waitingUsers.includes(socket.id));
     if (queue) {
       queue.waitingUsers = queue.waitingUsers.filter(id => id !== socket.id);
+      
+      // Leave the queue room
+      socket.leave(getQueueRoom(queue.eventId));
+      
+      // Broadcast updated queue positions
+      queue.waitingUsers.forEach((socketId, index) => {
+        io.to(socketId).emit("queuePositionUpdate", {
+          eventId: queue.eventId,
+          position: index + 1,
+          message: `Your position in queue is now ${index + 1}`
+        });
+      });
+      
+      // Clean up empty queues
+      if (queue.waitingUsers.length === 0) {
+        const queueIndex = queues.findIndex(q => q.eventId === queue.eventId);
+        if (queueIndex !== -1) {
+          queues.splice(queueIndex, 1);
+        }
+      }
     }
 
     const timer = userTimers.get(socket.id);

@@ -28,7 +28,7 @@ export default function ReservePage() {
 
   const handleSeatsUpdated = useCallback((data: any) => {
     updateSeatsFromSocket(data.seatIds, data.status);
-    
+
     if (data.status === "available") {
       setReservedSeats(prev => prev.filter(s => !data.seatIds.includes(s.id)));
       setTimeLeft(null);
@@ -80,7 +80,7 @@ export default function ReservePage() {
     onEnterEventSuccess: () => {
       fetchSeats();
     },
-    onEnterQueue: () => {},
+    onEnterQueue: () => { },
   });
 
   const hasCalledEnterEvent = useRef(false);
@@ -103,7 +103,7 @@ export default function ReservePage() {
 
   useEffect(() => {
     if (timeLeft === null || timeLeft <= 0) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev === null || prev <= 1) {
@@ -118,7 +118,7 @@ export default function ReservePage() {
 
   const handleSeatSelect = (seat: Seat) => {
     if (seat.status === "reserved" || seat.status === "sold") return;
-    
+
     const isSelected = selectedSeats.some(s => s.id === seat.id);
 
     if (isSelected) {
@@ -280,7 +280,7 @@ export default function ReservePage() {
 
               {reservedSeats.length > 0 && (
                 <div className="space-y-3">
-                  <button 
+                  <button
                     onClick={handleBuy}
                     disabled={!isConnected}
                     className="w-full bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-colors"
@@ -292,7 +292,7 @@ export default function ReservePage() {
 
               {selectedSeats.length > 0 && reservedSeats.length === 0 && (
                 <div className="space-y-3">
-                  <button 
+                  <button
                     onClick={handleReserve}
                     disabled={!isConnected}
                     className="w-full bg-[#f97316] hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-colors"

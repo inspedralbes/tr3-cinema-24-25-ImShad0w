@@ -22,3 +22,12 @@ export interface Queue {
 export const events: Event[] = [];
 export const users: User[] = [];
 export const queues: Queue[] = [];
+
+// Room management helpers
+export function getEventRoom(eventId: string): string {
+  return `event:${eventId}`;
+}
+
+export function getQueueRoom(eventId: string): string {
+  return `queue:${eventId}`;
+}

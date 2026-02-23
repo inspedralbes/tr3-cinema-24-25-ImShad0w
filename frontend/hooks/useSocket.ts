@@ -14,6 +14,9 @@ type SocketEventHandlers = {
   onEnterEventError?: (data: any) => void;
   onEnterQueue?: (data: any) => void;
   onQueuePromoted?: (data: any) => void;
+  onQueuePositionUpdate?: (data: any) => void;
+  onUserJoinedEvent?: (data: any) => void;
+  onUserLeftEvent?: (data: any) => void;
 };
 
 // Singleton socket instance
@@ -39,6 +42,7 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
   const [inQueue, setInQueue] = useState(false);
   const [queuePosition, setQueuePosition] = useState(0);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [activeUsers, setActiveUsers] = useState<string[]>([]);
 
   handlersRef.current = handlers;
 
@@ -63,6 +67,7 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
       setIsConnected(false);
       setInQueue(false);
       setQueuePosition(0);
+      setActiveUsers([]);
     };
 
     socket.on("connect", onConnect);
@@ -114,6 +119,7 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
       console.log("enterEventSuccess received");
       setInQueue(false);
       setQueuePosition(0);
+      setActiveUsers(data.activeUsers || []);
       handlersRef.current.onEnterEventSuccess?.(data);
     });
 
@@ -137,6 +143,24 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
       handlersRef.current.onQueuePromoted?.(data);
     });
 
+    socket.on("queuePositionUpdate", (data: any) => {
+      console.log("queuePositionUpdate received:", data);
+      setQueuePosition(data.position);
+      handlersRef.current.onQueuePositionUpdate?.(data);
+    });
+
+    socket.on("userJoinedEvent", (data: any) => {
+      console.log("userJoinedEvent received:", data);
+      setActiveUsers(data.activeUsers || []);
+      handlersRef.current.onUserJoinedEvent?.(data);
+    });
+
+    socket.on("userLeftEvent", (data: any) => {
+      console.log("userLeftEvent received:", data);
+      setActiveUsers(data.activeUsers || []);
+      handlersRef.current.onUserLeftEvent?.(data);
+    });
+
     return () => {
       socket.off("seatsUpdated");
       socket.off("reserveSuccess");
@@ -148,6 +172,9 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
       socket.off("enterEventError");
       socket.off("enterQueue");
       socket.off("queuePromoted");
+      socket.off("queuePositionUpdate");
+      socket.off("userJoinedEvent");
+      socket.off("userLeftEvent");
     };
   }, []);
 
@@ -162,6 +189,7 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
   }, []);
 
   const leaveEvent = useCallback(() => {
+    setActiveUsers([]);
     emit("leaveEvent", {});
   }, [emit]);
 
@@ -199,6 +227,7 @@ export function useSocket(handlers: SocketEventHandlers = {}) {
     inQueue,
     queuePosition,
     eventId,
+    activeUsers,
     emit,
     enterEvent,
     leaveEvent,

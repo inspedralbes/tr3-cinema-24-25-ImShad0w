@@ -47,8 +47,10 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Create base landing page
 - [x] Create a simple page of events
 - [x] Create a simple seat map
-- [ ] Create a way for reserving and buying the seats
-- [ ] Add real time queue for up to 5 people
+- [x] Create a way for reserving and buying the seats
+- [x] Add real time queue for up to 5 people
+- [ ] Add persistance to the queue via Redis
+- [ ] Add cypress E2E testing of the application
 
 ## Key concepts to learn for this project
 
