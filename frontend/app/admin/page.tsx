@@ -1,10 +1,22 @@
 "use client"
 
-import EventCard from "@/components/items/EventCard"
+import Link from "next/link"
+import AdminEventCard from "@/components/items/AdminEventCard"
 import { useEvents } from "../../hooks/useEvents"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 
 export default function AdminPage() {
-  const { events, loading, error } = useEvents()
+  const { events, loading, error, deleteEvent } = useEvents()
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Segur que vols eliminar aquest esdeveniment?")) return
+    
+    const success = await deleteEvent(id)
+    if (!success) {
+      alert("Error en eliminar l'esdeveniment")
+    }
+  }
 
   if (loading) {
     return (
@@ -25,13 +37,25 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#18181b]">
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-[#fafafa] mb-8">
-          Esdeveniments Actuals
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-[#fafafa]">
+            Esdeveniments Actuals
+          </h1>
+          <Link href="/admin/event/new">
+            <Button className="bg-[#f59e0b] hover:bg-[#d97706] text-[#18181b] font-semibold">
+              <Plus className="w-4 h-4" />
+              Crear Esdeveniment
+            </Button>
+          </Link>
+        </div>
 
         <div className="space-y-4">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <AdminEventCard 
+              key={event.id} 
+              event={event} 
+              onDelete={handleDelete}
+            />
           ))}
         </div>
 

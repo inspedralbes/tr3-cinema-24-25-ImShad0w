@@ -12,7 +12,9 @@ Route::get('/user', function (Request $request) {
 Route::post('/event', [EventController::class, 'store']);
 Route::get('/event', [EventController::class, 'index']);
 Route::get('/event/{event}', [EventController::class, 'show']);
+Route::put('/event/{event}', [EventController::class, 'update']);
 Route::get('/event/{event}/seats', [EventController::class, 'seatsByEvent']);
 Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/seats/buy', [SeatController::class, 'buy']);
 Route::post('/seats/release', [SeatController::class, 'release']);
+Route::delete('/event/{event}', [EventController::class, 'destroy']);

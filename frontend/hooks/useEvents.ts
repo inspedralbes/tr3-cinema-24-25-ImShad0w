@@ -16,6 +16,7 @@ interface UseEventsReturn {
   loading: boolean;
   error: string | null;
   fetchEvents: () => Promise<void>;
+  deleteEvent: (id: number) => Promise<boolean>;
 }
 
 export function useEvents(): UseEventsReturn {
@@ -41,6 +42,22 @@ export function useEvents(): UseEventsReturn {
     }
   }, []);
 
+  const deleteEvent = useCallback(async (id: number): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/event/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setEvents(prev => prev.filter(e => e.id !== id));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Error deleting event:", err);
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
@@ -50,6 +67,7 @@ export function useEvents(): UseEventsReturn {
     loading,
     error,
     fetchEvents,
+    deleteEvent,
   };
 }
 

@@ -28,9 +28,21 @@ class EventController extends Controller
             "description" => 'required|string',
             "location" => 'required|string',
             "date" => 'required|date',
+            "seats_count" => 'nullable|integer|min:1',
         ]);
 
+        $seatsCount = $validated['seats_count'] ?? 50;
+        unset($validated['seats_count']);
+
         $event = Event::create($validated);
+
+        for ($i = 1; $i <= $seatsCount; $i++) {
+            $event->seats()->create([
+                'seat_number' => $i,
+                'status' => 'available',
+            ]);
+        }
+
         return $event;
     }
 
@@ -52,7 +64,15 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        //
+        $validated = $request->validate([
+            "title" => 'required|string|max:255',
+            "description" => 'required|string',
+            "location" => 'required|string',
+            "date" => 'required|date',
+        ]);
+
+        $event->update($validated);
+        return $event;
     }
 
     /**
@@ -60,6 +80,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        //
+        $event->delete();
+        return response()->json(['message' => 'Event deleted successfully']);
     }
 }

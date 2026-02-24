@@ -9,10 +9,14 @@ class Event extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'location', 'date'];
+    protected $fillable = ['title', 'description', 'location', 'date', 'seats_count'];
 
     public function seats()
     {
         return $this->hasMany(Seat::class);
     }
+
+    protected $casts = [
+        'date' => 'datetime',
+    ];
 }
