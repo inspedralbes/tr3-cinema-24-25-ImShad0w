@@ -20,7 +20,7 @@ class EventResource extends JsonResource
             'description' => $this->description,
             'location' => $this->location,
             'date' => $this->date,
-            'seats_count' => $this->seats()->count(),
+            'seats_count' => $this->seats()->where('status', 'available')->count(),
         ];
     }
 }
