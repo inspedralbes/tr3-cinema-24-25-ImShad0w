@@ -3,9 +3,11 @@
 namespace App\Http\Api;
 
 use App\Models\Seat;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SeatController extends Controller
 {
@@ -66,19 +68,47 @@ class SeatController extends Controller
         $validated = $request->validate([
             'seat_ids' => 'required|array',
             'seat_ids.*' => 'integer|exists:seats,id',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
         ]);
+
         $seats = Seat::whereIn('id', $validated['seat_ids'])
             ->where('status', 'reserved')
             ->get();
+        
         if ($seats->count() !== count($validated['seat_ids'])) {
             return response()->json(['error' => 'Cannot buy seats that are not reserved'], 422);
         }
-        DB::transaction(function () use ($seats) {
+
+        $eventId = $seats->first()->event_id;
+        $tickets = [];
+
+        DB::transaction(function () use ($seats, $validated, $eventId, &$tickets) {
             foreach ($seats as $seat) {
                 $seat->update(['status' => 'sold']);
+                
+                $ticketCode = strtoupper(Str::random(10));
+                
+                $ticket = Ticket::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'event_id' => $eventId,
+                    'seat_id' => $seat->id,
+                    'ticket_code' => $ticketCode,
+                ]);
+                
+                $tickets[] = [
+                    'ticket_code' => $ticketCode,
+                    'seat_number' => $seat->seat_number,
+                ];
             }
         });
-        return response()->json(['message' => 'Seats purchased successfully']);
+
+        return response()->json([
+            'message' => 'Seats purchased successfully',
+            'tickets' => $tickets,
+            'event_id' => $eventId,
+        ]);
     }
 
     public function release(Request $request)

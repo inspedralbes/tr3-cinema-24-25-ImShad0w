@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import SeatMap from "@/components/sections/SeatMap";
 import { ChevronLeft, X, Timer } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +16,7 @@ type Seat = {
 
 export default function ReservePage() {
   const params = useParams();
+  const router = useRouter();
   const eventId = params.id as string;
 
   const { seats, loading, error, fetchSeats, updateSeatsFromSocket } = useEventSeats(eventId);
@@ -145,8 +146,8 @@ export default function ReservePage() {
 
   const handleBuy = () => {
     if (reservedSeats.length === 0) return;
-    setReserveError(null);
-    buySeats();
+    const seatIds = reservedSeats.map(s => s.id).join(',');
+    router.push(`/event/${eventId}/checkout?seats=${seatIds}`);
   };
 
   const formatTime = (seconds: number) => {
