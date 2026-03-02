@@ -16,6 +16,19 @@ type Event = {
   date: string
 }
 
+type PriceInfo = {
+  price_per_seat: number
+  currency: string
+}
+
+type Event = {
+  id: number
+  title: string
+  description: string
+  location: string
+  date: string
+}
+
 function CheckoutContent({ eventId }: { eventId: string }) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -23,6 +36,7 @@ function CheckoutContent({ eventId }: { eventId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [event, setEvent] = useState<Event | null>(null)
   const [fetchingEvent, setFetchingEvent] = useState(true)
+  const [priceInfo, setPriceInfo] = useState<PriceInfo | null>(null)
 
   const seatIdsParam = searchParams.get("seats")
   const seatIds = seatIdsParam ? seatIdsParam.split(",").map(Number) : []
@@ -40,10 +54,20 @@ function CheckoutContent({ eventId }: { eventId: string }) {
 
     const fetchEvent = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/event/${eventId}`)
-        if (!response.ok) throw new Error("Error en carregar l'esdeveniment")
-        const data = await response.json()
-        setEvent(data.data?.event || data.data)
+        const [eventResponse, priceResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/event/${eventId}`),
+          fetch(`${API_BASE_URL}/seats/price`)
+        ])
+        
+        if (eventResponse.ok) {
+          const data = await eventResponse.json()
+          setEvent(data.data?.event || data.data)
+        }
+        
+        if (priceResponse.ok) {
+          const priceData = await priceResponse.json()
+          setPriceInfo(priceData)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error inesperat")
       } finally {
@@ -133,7 +157,12 @@ function CheckoutContent({ eventId }: { eventId: string }) {
                 hour: "2-digit",
                 minute: "2-digit"
               })}</p>
-              <p className="mt-2 text-[#f59e0b]">{seatIds.length} entrades</p>
+              <div className="mt-3 pt-3 border-t border-[#3f3f46]">
+                <div className="flex justify-between text-[#f59e0b]">
+                  <span>{seatIds.length} entrades x {priceInfo?.price_per_seat || 20}€</span>
+                  <span className="font-semibold">{seatIds.length * (priceInfo?.price_per_seat || 20)}€</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -189,7 +218,7 @@ function CheckoutContent({ eventId }: { eventId: string }) {
               disabled={loading}
               className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-white font-semibold py-3"
             >
-              {loading ? "Processant..." : "Comprar ara"}
+              {loading ? "Processant..." : `Comprar ara - ${seatIds.length * (priceInfo?.price_per_seat || 20)}€`}
             </Button>
           </div>
         </form>

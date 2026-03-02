@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 
 class SeatController extends Controller
 {
+    private const SEAT_PRICE = 20.00;
     /**
      * Display a listing of the resource.
      */
@@ -95,11 +96,13 @@ class SeatController extends Controller
                     'event_id' => $eventId,
                     'seat_id' => $seat->id,
                     'ticket_code' => $ticketCode,
+                    'price' => self::SEAT_PRICE,
                 ]);
                 
                 $tickets[] = [
                     'ticket_code' => $ticketCode,
                     'seat_number' => $seat->seat_number,
+                    'price' => self::SEAT_PRICE,
                 ];
             }
         });
@@ -108,6 +111,8 @@ class SeatController extends Controller
             'message' => 'Seats purchased successfully',
             'tickets' => $tickets,
             'event_id' => $eventId,
+            'total_price' => count($tickets) * self::SEAT_PRICE,
+            'price_per_seat' => self::SEAT_PRICE,
         ]);
     }
 
@@ -136,5 +141,13 @@ class SeatController extends Controller
     public function destroy(Seat $seat)
     {
         //
+    }
+
+    public function price()
+    {
+        return response()->json([
+            'price_per_seat' => self::SEAT_PRICE,
+            'currency' => 'EUR',
+        ]);
     }
 }

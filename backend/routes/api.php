@@ -17,4 +17,5 @@ Route::get('/event/{event}/seats', [EventController::class, 'seatsByEvent']);
 Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/seats/buy', [SeatController::class, 'buy']);
 Route::post('/seats/release', [SeatController::class, 'release']);
+Route::get('/seats/price', [SeatController::class, 'price']);
 Route::delete('/event/{event}', [EventController::class, 'destroy']);

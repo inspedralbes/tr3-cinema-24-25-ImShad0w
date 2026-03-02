@@ -8,10 +8,17 @@ import Link from "next/link";
 import { useSocket } from "../../../../hooks/useSocket";
 import { useEventSeats } from "../../../../hooks/useEventSeats";
 
+const API_BASE_URL = "http://localhost:8000/api"
+
 type Seat = {
   id: number;
   seat_number: number;
   status: "available" | "reserved" | "sold";
+}
+
+type PriceInfo = {
+  price_per_seat: number;
+  currency: string;
 }
 
 export default function ReservePage() {
@@ -26,6 +33,7 @@ export default function ReservePage() {
   const [reserveSuccess, setReserveSuccess] = useState(false);
   const [buySuccess, setBuySuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [priceInfo, setPriceInfo] = useState<PriceInfo | null>(null);
 
   const handleSeatsUpdated = useCallback((data: any) => {
     updateSeatsFromSocket(data.seatIds, data.status);
@@ -85,6 +93,13 @@ export default function ReservePage() {
   });
 
   const hasCalledEnterEvent = useRef(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/seats/price`)
+      .then(res => res.json())
+      .then(data => setPriceInfo(data))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (isConnected && !hasCalledEnterEvent.current) {
@@ -281,24 +296,32 @@ export default function ReservePage() {
 
               {reservedSeats.length > 0 && (
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between text-[#fafafa] font-medium pt-2 border-t border-[#27272a]">
+                    <span>Total</span>
+                    <span className="text-[#22c55e]">{reservedSeats.length * (priceInfo?.price_per_seat || 20)}€</span>
+                  </div>
                   <button
                     onClick={handleBuy}
                     disabled={!isConnected}
                     className="w-full bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-colors"
                   >
-                    Comprar Ara
+                    Comprar Ara - {reservedSeats.length * (priceInfo?.price_per_seat || 20)}€
                   </button>
                 </div>
               )}
 
               {selectedSeats.length > 0 && reservedSeats.length === 0 && (
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between text-[#fafafa] font-medium pt-2 border-t border-[#27272a]">
+                    <span>Total</span>
+                    <span className="text-[#f97316]">{selectedSeats.length * (priceInfo?.price_per_seat || 20)}€</span>
+                  </div>
                   <button
                     onClick={handleReserve}
                     disabled={!isConnected}
                     className="w-full bg-[#f97316] hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-colors"
                   >
-                    Reservar
+                    Reservar - {selectedSeats.length * (priceInfo?.price_per_seat || 20)}€
                   </button>
                 </div>
               )}
