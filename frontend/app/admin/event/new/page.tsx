@@ -48,6 +48,7 @@ export default function NewEventPage() {
       }
 
       router.push("/admin")
+      router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperat")
     } finally {

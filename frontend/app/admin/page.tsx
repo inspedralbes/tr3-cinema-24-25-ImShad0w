@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import AdminEventCard from "@/components/items/AdminEventCard"
 import { useEvents } from "../../hooks/useEvents"
@@ -7,7 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 
 export default function AdminPage() {
-  const { events, loading, error, deleteEvent } = useEvents()
+  const { events, loading, error, deleteEvent, fetchEvents } = useEvents()
+
+  useEffect(() => {
+    fetchEvents()
+    const handleFocus = () => fetchEvents()
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [fetchEvents])
 
   const handleDelete = async (id: number) => {
     if (!confirm("Segur que vols eliminar aquest esdeveniment?")) return

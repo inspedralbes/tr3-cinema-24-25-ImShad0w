@@ -3,6 +3,7 @@
 namespace App\Http\Api;
 
 use App\Models\Event;
+use App\Models\Seat;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
@@ -28,9 +29,23 @@ class EventController extends Controller
             "description" => 'required|string',
             "location" => 'required|string',
             "date" => 'required|date',
+            "seats_count" => 'sometimes|required|integer|min:1',
         ]);
 
+        $seatsCount = $validated['seats_count'] ?? 50;
+        unset($validated['seats_count']);
+
         $event = Event::create($validated);
+
+        for ($i = 1; $i <= $seatsCount; $i++) {
+            Seat::create([
+                'event_id' => $event->id,
+                'seat_number' => $i,
+                'status' => 'available',
+            ]);
+        }
+
+        $event->load('seats');
         return $event;
     }
 
@@ -52,7 +67,16 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        //
+        $validated = $request->validate([
+            "title" => 'sometimes|required|string|max:255',
+            "description" => 'sometimes|required|string',
+            "location" => 'sometimes|required|string',
+            "date" => 'sometimes|required|date',
+            "seats_count" => 'sometimes|required|integer|min:1',
+        ]);
+
+        $event->update($validated);
+        return $event;
     }
 
     /**

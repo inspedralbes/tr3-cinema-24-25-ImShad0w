@@ -22,7 +22,7 @@ export default function EventCard({ event }: { event: Event }) {
   })
 
   return (
-    <Card className="bg-[#27272a] border-[#3f3f46] hover:border-[#f59e0b]/50 transition-colors duration-200">
+    <Card data-testid="event-card" className="bg-[#27272a] border-[#3f3f46] hover:border-[#f59e0b]/50 transition-colors duration-200">
       <div className="flex">
         {/* Left Content */}
         <div className="flex-1 p-6">

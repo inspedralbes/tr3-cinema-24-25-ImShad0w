@@ -36,6 +36,7 @@ export default function SeatItem({ seat, onSelect, isSelected }: SeatProps) {
     <button
       onClick={handleClick}
       disabled={seat.status !== "available"}
+      data-seat={seat.seat_number}
       className={`w-8 h-8 rounded-t-lg rounded-b-md flex items-center justify-center text-xs font-medium transition-all duration-200 cursor-pointer ${getSeatStyles()}`}
       title={`Seat ${seat.seat_number}`}
     >
