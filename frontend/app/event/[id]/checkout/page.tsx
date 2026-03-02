@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Ticket, User, Mail } from "lucide-react"
 
-const API_BASE_URL = "http://localhost:8000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 type Event = {
   id: number
@@ -19,14 +19,6 @@ type Event = {
 type PriceInfo = {
   price_per_seat: number
   currency: string
-}
-
-type Event = {
-  id: number
-  title: string
-  description: string
-  location: string
-  date: string
 }
 
 function CheckoutContent({ eventId }: { eventId: string }) {

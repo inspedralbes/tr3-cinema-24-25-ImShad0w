@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useSocket } from "../../../../hooks/useSocket";
 import { useEventSeats } from "../../../../hooks/useEventSeats";
 
-const API_BASE_URL = "http://localhost:8000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 type Seat = {
   id: number;
