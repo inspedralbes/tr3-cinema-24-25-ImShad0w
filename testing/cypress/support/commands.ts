@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = "https://localhost/api";
 
 Cypress.Commands.add("createTestEvent", (event) => {
   const defaultEvent = {
@@ -72,4 +72,4 @@ Cypress.Commands.add("buyReservedSeats", () => {
   cy.contains("button", "Comprar Ara").click();
 });
 
-export {};
+export { };

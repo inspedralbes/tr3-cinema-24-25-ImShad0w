@@ -70,6 +70,7 @@ describe("Admin Flow - Edit Event", () => {
       seats_count: 50,
     }).then((id) => {
       eventId = id as number;
+      cy.visit(`/admin/event/${eventId}/edit`);
     });
   });
 
@@ -80,22 +81,16 @@ describe("Admin Flow - Edit Event", () => {
   });
 
   it("should navigate to edit page", () => {
-    cy.visit(`/admin/event/${eventId}/edit`);
-
     cy.contains("Modificar Esdeveniment").should("be.visible");
   });
 
   it("should pre-fill form with existing event data", () => {
-    cy.visit(`/admin/event/${eventId}/edit`);
-
     cy.get('input[name="title"]').should("have.value", "Event To Edit");
     cy.get('textarea[name="description"]').should("have.value", "This event will be edited");
     cy.get('input[name="location"]').should("have.value", "Original Location");
   });
 
   it("should update event successfully", () => {
-    cy.visit(`/admin/event/${eventId}/edit`);
-
     cy.get('input[name="title"]').clear().type("Updated Event Title");
     cy.get('input[name="location"]').clear().type("New Location");
 
@@ -106,7 +101,6 @@ describe("Admin Flow - Edit Event", () => {
   });
 
   it("should navigate back to admin when clicking cancel", () => {
-    cy.visit(`/admin/event/${eventId}/edit`);
     cy.contains("button", "Cancel·lar").click();
 
     cy.url().should("include", "/admin");
@@ -168,20 +162,24 @@ describe("Admin Flow - Event List", () => {
   let eventIds: number[] = [];
 
   beforeEach(() => {
-    const createEvents = [];
-    for (let i = 0; i < 3; i++) {
-      createEvents.push(
-        cy.createTestEvent({
-          title: `List Test Event ${i}`,
-          description: `Test event ${i}`,
-          location: "Test",
-          seats_count: 5,
-        }).then((id) => {
-          if (id) eventIds.push(id);
-        })
-      );
-    }
-    cy.visit("/admin");
+    const createEvent = (i: number) => {
+      return cy.createTestEvent({
+        title: `List Test Event ${i}`,
+        description: `Test event ${i}`,
+        location: "Test",
+        seats_count: 5,
+      }).then((id) => {
+        if (id) eventIds.push(id);
+      });
+    };
+
+    createEvent(0).then(() => {
+      return createEvent(1);
+    }).then(() => {
+      return createEvent(2);
+    }).then(() => {
+      cy.visit("/admin");
+    });
   });
 
   afterEach(() => {
