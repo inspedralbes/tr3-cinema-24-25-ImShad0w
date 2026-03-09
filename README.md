@@ -25,7 +25,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 
 ## Tech stack
 
-- **Frontend**: NextJS
+- **Frontend**: NextJS (No specific reason, was bored of Vue and Nuxt)
 
 - **Backend**: Laravel
 
@@ -35,7 +35,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 
 - **Development**: Docker + Docker-Compose
 
-- **Component Library**: Shadcn
+- **Component Library**: Shadcn + Lucide-react
 
 ## Todos
 
@@ -45,8 +45,11 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Initiate the repo and search for component library to use
 - [x] Setup dev environment with Docker + Docker-Compose
 - [x] Create base landing page
-- [ ] Create a simple page of events
-- [ ] Create a simple seat map without Konva
+- [x] Create a simple page of events
+- [x] Create a simple seat map
+- [x] Create a way for reserving and buying the seats
+- [x] Add real time queue for up to 5 people
+- [x] Add cypress E2E testing of the application
 
 ## Key concepts to learn for this project
 
@@ -54,3 +57,13 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - Component library (Shadcn)
 - Ticket state in real-time
 - Map of the chairs for real time locks
+
+## Things that could be added
+
+- User accounts for viewing purchase history and event attendance
+
+- Persistance of the reserved seats and queue via Redis in case of server saturation/poor rate limiting
+
+- CI/CD Pipeline with Github actions and Cypress
+
+- QR / Email confirmation of the booking + reminder of the event
