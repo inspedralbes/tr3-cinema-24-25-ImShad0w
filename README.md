@@ -49,8 +49,7 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - [x] Create a simple seat map
 - [x] Create a way for reserving and buying the seats
 - [x] Add real time queue for up to 5 people
-- [ ] Add persistance to the queue via Redis
-- [ ] Add cypress E2E testing of the application
+- [x] Add cypress E2E testing of the application
 
 ## Key concepts to learn for this project
 
@@ -58,3 +57,13 @@ Taiga link: [Taiga](https://tree.taiga.io/project/imshad0w-tr3-passmaster/timeli
 - Component library (Shadcn)
 - Ticket state in real-time
 - Map of the chairs for real time locks
+
+## Things that could be added
+
+- User accounts for viewing purchase history and event attendance
+
+- Persistance of the reserved seats and queue via Redis in case of server saturation/poor rate limiting
+
+- CI/CD Pipeline with Github actions and Cypress
+
+- QR / Email confirmation of the booking + reminder of the event
