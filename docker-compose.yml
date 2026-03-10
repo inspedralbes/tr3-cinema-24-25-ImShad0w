@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: cinema_postgres
+    container_name: passmaster_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: cinema_user
@@ -9,6 +9,11 @@ services:
       POSTGRES_DB: cinema_db
     volumes:
       - ./db/db_data:/var/lib/postgresql/data
+    networks:
+      passmaster_network:
+        aliases:
+          - cinema_postgres
+          - passmaster_postgres
 
   frontend:
     build:
@@ -20,7 +25,9 @@ services:
       - "3002:3000"
     environment:
       - NEXT_PUBLIC_API_URL=/api
-      - NEXT_PUBLIC_SOCKET_URL=
+      - NEXT_PUBLIC_SOCKET_URL=http://passmaster_realtime:3001
+    networks:
+      - passmaster_network
 
   backend:
     container_name: passmaster_backend
@@ -34,6 +41,8 @@ services:
       - "8002:8000"
     depends_on:
       - postgres
+    networks:
+      - passmaster_network
 
   realtime:
     build:
@@ -46,7 +55,14 @@ services:
     volumes:
       - ./realtime:/app
       - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - passmaster_network
 
+networks:
+  passmaster_network:
+    driver: bridge
 #  nginx:
 #    image: nginx:alpine
 #    container_name: cinema_nginx
@@ -71,6 +87,3 @@ services:
 #      - ./nginx/certs:/etc/nginx/certs:rw
 #      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
 #    entrypoint: "/bin/sh -c 'trap exit TERM; while true; do certbot renew --webroot -w /usr/share/nginx/html; sleep 12h & wait; done'"
-
-volumes:
-  postgres_data:
