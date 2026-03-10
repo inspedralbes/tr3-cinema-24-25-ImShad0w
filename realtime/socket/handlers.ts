@@ -10,7 +10,7 @@ async function releaseSeats(io: Server, socket: Socket, user: any) {
     const seatIds = user.reservedSeats;
 
     try {
-      const response = await fetch("http://cinema_backend:8000/api/seats/release", {
+      const response = await fetch("http://passmaster_backend:8002/api/seats/release", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -92,7 +92,7 @@ function promoteNextFromQueue(io: Server, eventId: string) {
 
 async function syncEvents() {
   try {
-    const response = await fetch("http://cinema_backend:8000/api/event");
+    const response = await fetch("http://passmaster_backend:8002/api/event");
     if (response.ok) {
       const apiEventsData: any = await response.json();
 
@@ -144,7 +144,7 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
 
     try {
       console.log("Fetching event from API...");
-      const response = await fetch(`http://cinema_backend:8000/api/event/${eventId}`);
+      const response = await fetch(`http://passmaster_backend:8002/api/event/${eventId}`);
       console.log("API response status:", response.status);
 
       if (!response.ok) {
@@ -320,7 +320,7 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
     }
 
     try {
-      const response = await fetch("http://cinema_backend:8000/api/seats/reserve", {
+      const response = await fetch("http://passmaster_backend:8002/api/seats/reserve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -379,7 +379,7 @@ export function setupSocketHandlers(io: Server, socket: Socket): void {
     const seatIds = user.reservedSeats;
 
     try {
-      const response = await fetch("http://cinema_backend:8000/api/seats/buy", {
+      const response = await fetch("http://passmaster_backend:8002/api/seats/buy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
