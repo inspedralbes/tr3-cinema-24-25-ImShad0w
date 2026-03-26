@@ -15,7 +15,7 @@ const io = new Server(httpServer, {
 
 async function syncEventsOnStartup() {
   try {
-    const response = await fetch("http://passmaster_backend:8000/api/events");
+    const response = await fetch("http://passmaster_backend:8000/api/event");
     if (response.ok) {
       const apiEventsData: any = await response.json();
 

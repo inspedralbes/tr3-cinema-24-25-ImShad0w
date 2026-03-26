@@ -26,10 +26,13 @@ let isConnecting = false;
 function getSocket(): Socket {
   if (!socketInstance) {
     console.log("Creating NEW socket instance");
-    socketInstance = io(SOCKET_URL, {
+    // If SOCKET_URL is empty, connect to current origin with /socket.io path
+    const url = SOCKET_URL || window.location.origin;
+    socketInstance = io(url, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      path: "/socket.io",
     });
   }
   return socketInstance;

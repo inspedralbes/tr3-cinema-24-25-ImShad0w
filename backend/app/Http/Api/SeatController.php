@@ -83,8 +83,9 @@ class SeatController extends Controller
 
         $eventId = $seats->first()->event_id;
         $tickets = [];
+        $userId = auth('sanctum')->user()?->id;
 
-        DB::transaction(function () use ($seats, $validated, $eventId, &$tickets) {
+        DB::transaction(function () use ($seats, $validated, $eventId, $userId, &$tickets) {
             foreach ($seats as $seat) {
                 $seat->update(['status' => 'sold']);
                 
@@ -97,6 +98,7 @@ class SeatController extends Controller
                     'seat_id' => $seat->id,
                     'ticket_code' => $ticketCode,
                     'price' => self::SEAT_PRICE,
+                    'user_id' => $userId,
                 ]);
                 
                 $tickets[] = [

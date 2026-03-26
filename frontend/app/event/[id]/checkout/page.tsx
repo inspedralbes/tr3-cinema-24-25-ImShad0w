@@ -81,10 +81,12 @@ function CheckoutContent({ eventId }: { eventId: string }) {
     setError(null)
 
     try {
+      const token = localStorage.getItem('token')
       const response = await fetch(`${API_BASE_URL}/seats/buy`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           seat_ids: seatIds,
