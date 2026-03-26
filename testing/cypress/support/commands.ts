@@ -15,6 +15,9 @@ declare global {
       selectSeat: (seatNumber: number) => Chainable<void>;
       reserveSelectedSeats: () => Chainable<void>;
       buyReservedSeats: () => Chainable<void>;
+      registerTestUser: (email: string, password: string, name?: string) => Chainable<void>;
+      loginTestUser: (email: string, password: string) => Chainable<void>;
+      deleteTestUser: (email: string, token: string) => Chainable<void>;
     }
   }
 }
@@ -31,27 +34,31 @@ Cypress.Commands.add("createTestEvent", (event) => {
   };
 
   const eventData = { ...defaultEvent, ...event };
+  const token = window.localStorage.getItem("token");
 
   return cy.request({
     method: "POST",
     url: `${API_BASE_URL}/event`,
     body: eventData,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     failOnStatusCode: false,
   }).then((response) => {
     if (response.status === 201 || response.status === 200) {
       const eventId = response.body?.data?.id || response.body?.id;
-      cy.wrap(eventId);
+      return cy.wrap(eventId);
     } else {
-      cy.wrap(null);
+      return cy.wrap(null);
     }
   });
 });
 
 Cypress.Commands.add("deleteTestEvent", (eventId: number) => {
   if (!eventId) return;
+  const token = window.localStorage.getItem("token");
   cy.request({
     method: "DELETE",
     url: `${API_BASE_URL}/event/${eventId}`,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     failOnStatusCode: false,
   });
 });
@@ -70,6 +77,26 @@ Cypress.Commands.add("reserveSelectedSeats", () => {
 
 Cypress.Commands.add("buyReservedSeats", () => {
   cy.contains("button", "Comprar Ara").click();
+});
+
+Cypress.Commands.add("registerTestUser", (email: string, password: string, name = "Test User") => {
+  cy.request({
+    method: "POST",
+    url: `${API_BASE_URL}/register`,
+    body: { name, email, password, password_confirmation: password },
+    failOnStatusCode: false,
+  });
+});
+
+Cypress.Commands.add("loginTestUser", (email: string, password: string) => {
+  cy.request({
+    method: "POST",
+    url: `${API_BASE_URL}/login`,
+    body: { email, password },
+  }).then((response) => {
+    window.localStorage.setItem("token", response.body.token);
+    window.localStorage.setItem("user", JSON.stringify(response.body.user));
+  });
 });
 
 export { };
